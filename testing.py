@@ -51,8 +51,6 @@ class ClickerApp:
             "Exit2": "exit2.png",
         }
 
-        self.image_locations = {}  # Dictionary to store image locations
-
         # Create widgets for the GUI
         self.create_widgets()
 
@@ -270,6 +268,8 @@ class ClickerApp:
                 == self.games[self.current_game]["max_energy"]
             ):
                 self.status_label.config(text=f"Status: Clicking {self.current_game}")
+                # if not gw.getWindowsWithTitle("BlueStacks App Player")[0].isMaximized:
+                # gw.getWindowsWithTitle("BlueStacks App Player")[0].restore()
                 while self.games[self.current_game]["energy"] > 0 and self.running:
                     self.click_middle()
                     self.games[self.current_game]["energy"] -= self.games[
@@ -285,6 +285,8 @@ class ClickerApp:
                 self.status_label.config(
                     text=f"Status: Waiting for energy {self.current_game}"
                 )
+                # if gw.getWindowsWithTitle("BlueStacks App Player")[0].isMaximized:
+                # gw.getWindowsWithTitle("BlueStacks App Player")[0].minimize()
                 time.sleep(1)
 
     def switch_game(self):
@@ -338,23 +340,17 @@ class ClickerApp:
         )
 
     def click_image(self, image_path):
-        # Locate and click the image on screen, save location for reuse
-        if image_path not in self.image_locations:
-            try:
-                location = pyautogui.locateOnScreen(image_path)
-                if location:
-                    self.image_locations[image_path] = location
-                else:
-                    self.status_label.config(text=f"Status: Failed to find {image_path}")
-            except:
-                on_closing()
-                sys.exit()
-
-        # Use saved location to click
-        if image_path in self.image_locations:
-            location = self.image_locations[image_path]
+        # Locate and click the image on screen
+        try:
+            location = pyautogui.locateOnScreen(image_path)
+        except:
+            on_closing()
+            sys.exit()
+        if location:
             pyautogui.click(location)
             time.sleep(5)  # Ensure sufficient delay after clicking
+        else:
+            self.status_label.config(text=f"Status: Failed to find {image_path}")
 
     def monitor_stop(self):
         # Monitor for the stop hotkey
